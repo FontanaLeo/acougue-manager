@@ -1,0 +1,9 @@
+[
+  { "id": 1, "categoria_id": 1, "tipo": "despesa", "descricao": "Compra de Boi (Frigorífico)", "valor": 3200.00, "data": "2025-09-01" },
+  { "id": 2, "categoria_id": 1, "tipo": "receita", "descricao": "Vendas no balcão", "valor": 5400.00, "data": "2025-09-05" },
+  { "id": 3, "categoria_id": 2, "tipo": "despesa", "descricao": "Mercado", "valor": 680.00, "data": "2025-09-03" },
+  { "id": 4, "categoria_id": 1, "tipo": "despesa", "descricao": "Conta de Luz do Açougue", "valor": 310.00, "data": "2025-09-04" },
+  { "id": 5, "categoria_id": 2, "tipo": "despesa", "descricao": "Escola", "valor": 450.00, "data": "2025-09-05" },
+  { "id": 6, "categoria_id": 2, "tipo": "receita", "descricao": "Salário extra", "valor": 1200.00, "data": "2025-09-02" },
+  { "id": 7, "categoria_id": 1, "tipo": "despesa", "descricao": "Manutenção câmara fria", "valor": 250.00, "data": "2025-09-06" }
+]

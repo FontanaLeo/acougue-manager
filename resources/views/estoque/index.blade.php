@@ -11,18 +11,7 @@
 </div>
 
 <div id="gridEstoque" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-    @foreach ($itens as $item)
-        <div class="bg-white rounded-xl shadow p-4 border-l-4 {{ $item['kg'] < $item['estoque_minimo'] ? 'border-red-600' : 'border-green-600' }}"
-             data-id="{{ $item['id'] }}" data-estoque-minimo="{{ $item['estoque_minimo'] }}">
-            <div class="flex justify-between items-start">
-                <h2 class="font-semibold text-lg">{{ $item['nome'] }}</h2>
-                <span data-alerta-estoque class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full {{ $item['kg'] < $item['estoque_minimo'] ? '' : 'hidden' }}">Estoque baixo</span>
-            </div>
-            <p class="text-3xl font-bold mt-2 kg-valor">{{ number_format($item['kg'], 1) }} <span class="text-sm font-normal">kg</span></p>
-            <p class="text-gray-500 text-sm mt-1">R$ {{ number_format($item['preco_kg'], 2, ',', '.') }} / kg</p>
-            <p class="text-gray-400 text-xs mt-1">Fornecedor: {{ $item['fornecedor'] }}</p>
-        </div>
-    @endforeach
+    @include('estoque._cards')
 </div>
 
 {{-- Modal --}}

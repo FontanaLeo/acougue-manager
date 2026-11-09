@@ -1,8 +1,7 @@
 import type { MovimentarResponse } from './types';
 
-type ItemEstoqueLike = { id: number; kg: number; estoque_minimo: number };
-
 export function initEstoque(): void {
+  const grid = document.getElementById('gridEstoque');
   const modal = document.getElementById('modalMovimentar') as HTMLDivElement;
   const btnAbrir = document.getElementById('btnAbrirModal');
   const btnFechar = document.getElementById('btnFecharModal');
@@ -46,7 +45,7 @@ export function initEstoque(): void {
       const data: MovimentarResponse = await res.json();
       if (!res.ok || !data.success) throw new Error(data.message ?? 'Não foi possível movimentar o estoque.');
 
-      atualizarCards(data.itens);
+      if (grid) grid.innerHTML = data.html ?? '';
       modal.classList.add('hidden');
       form.reset();
     } catch (error) {
@@ -57,19 +56,5 @@ export function initEstoque(): void {
     } finally {
       if (botao) botao.disabled = false;
     }
-  });
-}
-
-function atualizarCards(itens: ItemEstoqueLike[]): void {
-  itens.forEach((item) => {
-    const container = document.querySelector<HTMLElement>(`[data-id="${item.id}"]`);
-    const valor = container?.querySelector<HTMLElement>('.kg-valor');
-    const alerta = container?.querySelector<HTMLElement>('[data-alerta-estoque]');
-    const estoqueBaixo = item.kg < item.estoque_minimo;
-
-    if (valor) valor.innerHTML = `${item.kg.toFixed(1)} <span class="text-sm font-normal">kg</span>`;
-    container?.classList.toggle('border-red-600', estoqueBaixo);
-    container?.classList.toggle('border-green-600', !estoqueBaixo);
-    alerta?.classList.toggle('hidden', !estoqueBaixo);
   });
 }

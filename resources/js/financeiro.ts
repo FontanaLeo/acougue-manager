@@ -1,22 +1,7 @@
-interface NovaTransacao {
-  id: number;
-  tag: string;
-  tipo: 'despesa' | 'receita';
-  desc: string;
-  valor: number;
-  data: string;
-}
-
-interface TotaisFinanceiros {
-  acougue: number;
-  familia: number;
-  saldo: number;
-}
-
 interface RespostaTransacao {
   success: boolean;
-  transacao: NovaTransacao;
-  totais: TotaisFinanceiros;
+  html_resumo?: string;
+  html_transacoes?: string;
   message?: string;
   errors?: Record<string, string[]>;
 }
@@ -27,12 +12,13 @@ export function initFinanceiro(): void {
   const form = document.getElementById('formTransacao') as HTMLFormElement | null;
   const erro = document.getElementById('erroTransacao');
   const lista = document.getElementById('listaTransacoes');
+  const resumo = document.getElementById('resumoFinanceiro');
   const token = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? '';
-  let filtroAtivo = 'Todos';
+  let filtroAtivo = 'todos';
 
   botoes.forEach((btn) => {
     btn.addEventListener('click', () => {
-      filtroAtivo = btn.dataset.filtro ?? 'Todos';
+      filtroAtivo = btn.dataset.filtro ?? 'todos';
       atualizarFiltro(botoes, filtroAtivo);
     });
   });
@@ -70,8 +56,8 @@ export function initFinanceiro(): void {
         },
         body: JSON.stringify({
           tipo: valores.get('tipo'),
-          tag: valores.get('tag'),
-          desc: valores.get('desc'),
+          categoria_id: Number(valores.get('categoria_id')),
+          descricao: valores.get('descricao'),
           valor: Number(valores.get('valor')),
         }),
       });
@@ -82,8 +68,8 @@ export function initFinanceiro(): void {
         throw new Error(detalhe ?? 'Não foi possível adicionar o lançamento.');
       }
 
-      if (lista) lista.prepend(criarLinha(data.transacao));
-      atualizarTotais(data.totais);
+      if (lista) lista.innerHTML = data.html_transacoes ?? '';
+      if (resumo) resumo.innerHTML = data.html_resumo ?? '';
       atualizarFiltro(botoes, filtroAtivo);
       form.reset();
       fecharModal();
@@ -107,57 +93,13 @@ function atualizarFiltro(botoes: NodeListOf<HTMLButtonElement>, filtro: string):
     botao.classList.toggle('border', !ativo);
   });
 
-  document.querySelectorAll<HTMLDivElement>('#listaTransacoes > div').forEach((linha) => {
-    linha.style.display = filtro === 'Todos' || linha.dataset.tag === filtro ? 'flex' : 'none';
+  const cards = document.querySelectorAll<HTMLDivElement>('#listaTransacoes > [data-categoria]');
+  let visiveis = 0;
+  cards.forEach((card) => {
+    const visivel = filtro === 'todos' || card.dataset.categoria === filtro;
+    card.classList.toggle('hidden', !visivel);
+    if (visivel) visiveis += 1;
   });
-}
 
-function atualizarTotais(totais: TotaisFinanceiros): void {
-  atualizarSaldo('saldoAcougue', totais.acougue);
-  atualizarSaldo('saldoFamilia', totais.familia);
-  atualizarSaldo('saldoGeral', totais.saldo);
-}
-
-function atualizarSaldo(id: string, valor: number): void {
-  const elemento = document.getElementById(id);
-  if (!elemento) return;
-
-  elemento.dataset.value = String(valor);
-  elemento.textContent = `R$ ${valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  elemento.classList.toggle('text-green-700', valor >= 0);
-  elemento.classList.toggle('text-red-700', valor < 0);
-}
-
-function criarLinha(transacao: NovaTransacao): HTMLDivElement {
-  const linha = document.createElement('div');
-  linha.className = 'flex justify-between items-center p-3 gap-3';
-  linha.dataset.tag = transacao.tag;
-  linha.dataset.tipo = transacao.tipo;
-
-  const detalhes = document.createElement('div');
-  const categoria = document.createElement('span');
-  categoria.className = `text-xs px-2 py-0.5 rounded-full ${transacao.tag === 'Açougue' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'}`;
-  categoria.textContent = `[${transacao.tag}]`;
-
-  const descricao = document.createElement('span');
-  descricao.className = 'ml-2';
-  descricao.textContent = transacao.desc;
-
-  const data = document.createElement('span');
-  data.className = 'ml-2 text-xs text-gray-400';
-  data.textContent = formatarData(transacao.data);
-  detalhes.append(categoria, descricao, data);
-
-  const valor = document.createElement('span');
-  valor.className = `font-semibold ${transacao.tipo === 'receita' ? 'text-green-700' : 'text-red-700'}`;
-  const sinal = transacao.tipo === 'receita' ? '+' : '-';
-  valor.textContent = `${sinal} R$ ${transacao.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-
-  linha.append(detalhes, valor);
-  return linha;
-}
-
-function formatarData(data: string): string {
-  const [ano, mes, dia] = data.split('-');
-  return `${dia}/${mes}/${ano}`;
+  document.getElementById('semResultados')?.classList.toggle('hidden', cards.length === 0 || visiveis > 0);
 }
