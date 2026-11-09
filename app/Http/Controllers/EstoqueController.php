@@ -13,7 +13,7 @@ class EstoqueController extends Controller
 
     public function index()
     {
-        return view('estoque.index', ['itens' => $this->estoque->listar()]);
+        return response()->json($this->estoque->listar());
     }
 
     public function movimentar(Request $request)
@@ -25,12 +25,9 @@ class EstoqueController extends Controller
         ]);
 
         if (! $this->estoque->movimentar((int) $data['id'], $data['tipo'], (float) $data['quantidade'])) {
-            return response()->json(['success' => false, 'message' => 'Produto não encontrado.'], 404);
+            return response()->json(['message' => 'Produto não encontrado.'], 404);
         }
 
-        return response()->json([
-            'success' => true,
-            'html' => view('estoque._cards', ['itens' => $this->estoque->listar()])->render(),
-        ]);
+        return response()->noContent();
     }
 }
