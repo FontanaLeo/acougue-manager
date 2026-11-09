@@ -59,22 +59,22 @@ flowchart TD
     U[Usuário] --> M{Escolhe módulo}
 
     M -->|Estoque| E1[Abre a tela de estoque]
-    E1 --> E2[EstoqueController lê os itens pelo EstoqueRepository]
-    E2 --> E3[Blade gera um card por item]
+    E1 --> E2[useGetEstoque busca GET /api/estoque]
+    E2 --> E3[React gera um card por item]
     E3 --> E4{Movimentar estoque?}
-    E4 -->|Sim| E5[TypeScript envia POST /estoque/movimentar]
+    E4 -->|Sim| E5[useMovimentarEstoque envia POST /api/estoque/movimentar]
     E5 --> E6[Controller valida e atualiza pelo repositório]
-    E6 --> E7[Resposta JSON traz os cards atualizados]
+    E6 --> E7[React Query busca a lista de novo e atualiza os cards]
 
     M -->|Financeiro| F1[Abre a tela financeira]
-    F1 --> F2[FinanceiroController lê categorias e transações pelo FinanceiroRepository]
+    F1 --> F2[useFinanceiroPage busca GET /api/categorias e /api/transacoes]
     F2 --> F3[Calcula os saldos por categoria]
-    F3 --> F4[Blade gera os cards de saldo, os filtros e os cards de transações]
+    F3 --> F4[React gera os cards de saldo, os filtros e os cards de transações]
     F4 --> F5{Adicionar lançamento?}
     F5 -->|Sim| F6[Informa tipo, categoria, descrição e valor]
-    F6 --> F7[TypeScript envia POST /financeiro/transacoes]
+    F6 --> F7[useAdicionarTransacao envia POST /api/transacoes]
     F7 --> F8[Controller valida e salva pelo repositório]
-    F8 --> F9[Resposta JSON traz os cards atualizados]
+    F8 --> F9[React Query busca os lançamentos de novo e atualiza os cards]
 ```
 
 ## Diagrama de casos de uso
@@ -118,9 +118,9 @@ classDiagram
     }
 
     class FinanceiroController {
-        +index()
+        +categorias()
+        +transacoes()
         +store(Request request)
-        -montarResumo(array categorias, array transacoes) array
     }
 
     class Request {

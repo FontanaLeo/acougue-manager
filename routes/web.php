@@ -4,10 +4,18 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EstoqueController;
 use App\Http\Controllers\FinanceiroController;
 
-Route::get('/', fn () => redirect()->route('estoque.index'));
+Route::redirect('/', '/estoque');
 
-Route::get('/estoque', [EstoqueController::class, 'index'])->name('estoque.index');
-Route::post('/estoque/movimentar', [EstoqueController::class, 'movimentar'])->name('estoque.movimentar');
+// Telas: o Laravel entrega só a página base e o React monta o conteúdo.
+Route::view('/estoque', 'app');
+Route::view('/financeiro', 'app');
 
-Route::get('/financeiro', [FinanceiroController::class, 'index'])->name('financeiro.index');
-Route::post('/financeiro/transacoes', [FinanceiroController::class, 'store'])->name('financeiro.transacoes.store');
+// A API fica no grupo web porque usa a sessão e o token CSRF da página.
+Route::prefix('api')->group(function () {
+    Route::get('/estoque', [EstoqueController::class, 'index']);
+    Route::post('/estoque/movimentar', [EstoqueController::class, 'movimentar']);
+
+    Route::get('/categorias', [FinanceiroController::class, 'categorias']);
+    Route::get('/transacoes', [FinanceiroController::class, 'transacoes']);
+    Route::post('/transacoes', [FinanceiroController::class, 'store']);
+});
