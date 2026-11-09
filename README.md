@@ -1,13 +1,13 @@
-# Açougue Manager — Protótipo com Laravel, React e TypeScript
+# Açougue Manager — Protótipo com React, TypeScript e Supabase
 
 ## Requisitos
 
-- PHP 8.2 ou superior e Composer
 - Node.js e npm
+- Um projeto no [Supabase](https://supabase.com)
 
 ## Instalação e execução
 
-Consulte [COMO-INICIAR.md](COMO-INICIAR.md) para os comandos testados neste ambiente, incluindo a ativação das extensões PHP necessárias e a inicialização do Vite no PowerShell.
+Consulte [COMO-INICIAR.md](COMO-INICIAR.md) para preparar o Supabase e iniciar o sistema.
 
 Para gerar os arquivos de produção, execute:
 
@@ -17,25 +17,29 @@ npm.cmd run build
 
 ## Módulos
 
-- `/estoque`: controle do estoque mock, persistido na sessão, com movimentações pela API.
-- `/financeiro`: saldos do açougue, da família e saldo líquido geral, com filtro de transações.
+- `/`: tela inicial, aberta logo após o login, para escolher o módulo.
+- `/estoque`: controle do estoque, com entradas, saídas e alerta de estoque mínimo.
+- `/financeiro`: saldos por categoria e saldo líquido geral, com filtro de lançamentos.
 
 ## De onde vêm os dados
 
-Os cards são gerados a partir dos dados, então cada item novo vira um card sem mudar a tela. Por enquanto os dados são mocks em `database/mock/*.json`, com o formato das futuras tabelas (`produtos`, `categorias` e `transacoes`). As alterações feitas pela tela ficam na sessão e no cache.
+O React fala direto com o Supabase, e os cards são gerados a partir dos dados: cada item novo no banco vira um card sem mudar a tela.
 
-Para usar o Supabase, crie classes que implementem `App\Repositories\EstoqueRepository` e `App\Repositories\FinanceiroRepository` e troque as classes Mock em `app/Providers/AppServiceProvider.php`. O frontend continua igual, porque só conversa com a API do Laravel.
+- `supabase/migrations`: tabelas, regras de acesso e funções.
+- `supabase/seed.sql`: dados de exemplo.
+
+Só usuários logados leem os dados, e toda escrita passa pelas funções `movimentar_estoque` e `adicionar_transacao`, que validam as regras e devolvem as mensagens de erro em português.
 
 ## Padrão do frontend
 
-O código fica em `resources/js` e os dados sempre seguem este caminho:
+O código fica em `src` e os dados sempre seguem este caminho:
 
 ```text
-componente → hook (React Query) → service → API do Laravel
+componente → hook (React Query) → service → Supabase
 ```
 
 - `types` e `enums`: formato dos dados e valores fixos.
-- `services`: funções `async` que chamam a API, sem nada de React.
+- `services`: funções `async` que chamam o Supabase, sem nada de React.
 - `lib/queryKeys.ts`: todas as chaves do React Query.
 - `hooks`: um hook por consulta ou ação, e as regras de cada página, como em `useFinanceiroPage`.
 - `components`: dividido em `atoms`, `molecules`, `organisms` e `layout`, recebendo os dados por props.
