@@ -1,5 +1,10 @@
-export type { ItemEstoque, MovimentacaoEstoque } from './ItemEstoque';
-export type { Categoria } from './Categoria';
+export type { AlteracaoPreco, ItemEstoque, MovimentacaoEstoque, NovoProduto } from './ItemEstoque';
+export type { Categoria, NovaCategoria } from './Categoria';
 export type { Credenciais } from './Credenciais';
-export type { Modulo } from './Modulo';
-export type { Transacao, NovaTransacao, ItemResumo } from './Transacao';
+export type { Desossa, NovaDesossa } from './Desossa';
+export type { Empresa } from './Empresa';
+export type { Cliente, DadosCliente, NovoLancamentoFiado } from './Fiado';
+export type { OpcaoFiltro } from './Filtro';
+export type { Lote, Perda } from './Lote';
+export type { Modulo, StatusModulo, Tom } from './Modulo';
+export type { Transacao, NovaTransacao } from './Transacao';

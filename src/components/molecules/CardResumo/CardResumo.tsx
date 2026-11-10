@@ -1,18 +1,25 @@
 import { Card } from '@/components/atoms';
-import { formatarMoeda } from '@/lib/formatters';
-import type { ItemResumo } from '@/types';
+
+type TomResumo = 'positivo' | 'negativo' | 'neutro';
+
+const CLASSES_TOM: Record<TomResumo, string> = {
+  positivo: 'text-emerald-700',
+  negativo: 'text-red-700',
+  neutro: 'text-stone-900',
+};
 
 interface CardResumoProps {
-  item: ItemResumo;
+  titulo: string;
+  valor: string;
+  tom?: TomResumo;
+  destaque?: boolean;
 }
 
-export function CardResumo({ item }: CardResumoProps) {
+export function CardResumo({ titulo, valor, tom = 'neutro', destaque = false }: CardResumoProps) {
   return (
-    <Card borda={item.destaque ? 'destaque' : undefined}>
-      <p className="text-gray-500 text-sm">{item.titulo}</p>
-      <p className={`text-2xl font-bold ${item.valor >= 0 ? 'text-green-700' : 'text-red-700'}`}>
-        {formatarMoeda(item.valor)}
-      </p>
+    <Card destaque={destaque}>
+      <p className="text-sm text-stone-500">{titulo}</p>
+      <p className={`mt-1 text-2xl font-bold tabular-nums ${CLASSES_TOM[tom]}`}>{valor}</p>
     </Card>
   );
 }

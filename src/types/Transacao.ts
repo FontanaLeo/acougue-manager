@@ -12,9 +12,3 @@ export interface Transacao {
 }
 
 export type NovaTransacao = Pick<Transacao, 'categoria_id' | 'tipo' | 'descricao' | 'valor'>;
-
-export interface ItemResumo {
-  titulo: string;
-  valor: number;
-  destaque: boolean;
-}

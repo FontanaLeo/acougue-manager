@@ -1,6 +1,7 @@
 import { Badge, Card } from '@/components/atoms';
+import { CabecalhoCard } from '@/components/molecules/CabecalhoCard/CabecalhoCard';
 import { TipoTransacao } from '@/enums';
-import { formatarData, formatarMoeda } from '@/lib/formatters';
+import { formatarData, formatarMoedaComSinal } from '@/lib/formatters';
 import type { Transacao } from '@/types';
 
 interface CardTransacaoProps {
@@ -11,15 +12,14 @@ export function CardTransacao({ transacao }: CardTransacaoProps) {
   const receita = transacao.tipo === TipoTransacao.RECEITA;
 
   return (
-    <Card borda={receita ? 'positiva' : 'negativa'}>
-      <div className="flex justify-between items-start gap-2">
-        <h2 className="font-semibold text-lg">{transacao.descricao}</h2>
+    <Card>
+      <CabecalhoCard titulo={transacao.descricao}>
         <Badge cor={transacao.categoria.cor}>{transacao.categoria.nome}</Badge>
-      </div>
-      <p className={`text-2xl font-bold mt-2 ${receita ? 'text-green-700' : 'text-red-700'}`}>
-        {receita ? '+' : '-'} {formatarMoeda(transacao.valor)}
+      </CabecalhoCard>
+      <p className={`mt-2 text-2xl font-bold tabular-nums ${receita ? 'text-emerald-700' : 'text-red-700'}`}>
+        {formatarMoedaComSinal(transacao.valor, receita)}
       </p>
-      <p className="text-gray-400 text-xs mt-1">{formatarData(transacao.data)}</p>
+      <p className="mt-1 text-xs text-stone-500">{formatarData(transacao.data)}</p>
     </Card>
   );
 }

@@ -10,9 +10,8 @@ export async function entrar({ email, senha }: Credenciais): Promise<void> {
 }
 
 export async function sair(): Promise<void> {
-  const { error } = await supabase.auth.signOut();
-
-  if (error) throw new Error('Não foi possível sair. Tente novamente.');
+  // No modo local a sessão é apagada antes de chamar o servidor: funciona mesmo sem internet.
+  await supabase.auth.signOut({ scope: 'local' });
 }
 
 export function observarSessao(aoMudar: (sessao: Session | null) => void): () => void {

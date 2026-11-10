@@ -1,16 +1,28 @@
+import { lazy, Suspense } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { Mensagem } from '@/components/atoms';
 import { AppShell } from '@/components/layout/AppShell';
+import { AvisosProvider } from '@/components/layout/AvisosProvider';
+import { CartoesCarregando } from '@/components/molecules';
 import { useSessao } from '@/hooks';
+import { ROTAS } from '@/lib/rotas';
 import { supabaseConfigurado } from '@/lib/supabase';
 import ConfiguracaoPendentePage from '@/pages/ConfiguracaoPendentePage';
-import EstoquePage from '@/pages/EstoquePage';
-import FinanceiroPage from '@/pages/FinanceiroPage';
-import InicioPage from '@/pages/InicioPage';
 import LoginPage from '@/pages/LoginPage';
 
-const queryClient = new QueryClient();
+// Cada tela é baixada só quando é aberta.
+const InicioPage = lazy(() => import('@/pages/InicioPage'));
+const EstoquePage = lazy(() => import('@/pages/EstoquePage'));
+const LotesPage = lazy(() => import('@/pages/LotesPage'));
+const PrecosPage = lazy(() => import('@/pages/PrecosPage'));
+const DesossaPage = lazy(() => import('@/pages/DesossaPage'));
+const FiadoPage = lazy(() => import('@/pages/FiadoPage'));
+const FinanceiroPage = lazy(() => import('@/pages/FinanceiroPage'));
+const PrivacidadePage = lazy(() => import('@/pages/PrivacidadePage'));
+
+// Toda gravação já recarrega as listas que mudou; trocar de tela dentro de 1 minuto não busca de novo.
+const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 60_000 } } });
 
 const AreaLogada = () => {
   const { sessao, carregando } = useSessao();
@@ -21,12 +33,19 @@ const AreaLogada = () => {
   return (
     <BrowserRouter>
       <AppShell>
-        <Routes>
-          <Route path="/" element={<InicioPage />} />
-          <Route path="/estoque" element={<EstoquePage />} />
-          <Route path="/financeiro" element={<FinanceiroPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+        <Suspense fallback={<CartoesCarregando />}>
+          <Routes>
+            <Route path={ROTAS.inicio} element={<InicioPage />} />
+            <Route path={ROTAS.estoque} element={<EstoquePage />} />
+            <Route path={ROTAS.lotes} element={<LotesPage />} />
+            <Route path={ROTAS.precos} element={<PrecosPage />} />
+            <Route path={ROTAS.desossa} element={<DesossaPage />} />
+            <Route path={ROTAS.fiado} element={<FiadoPage />} />
+            <Route path={ROTAS.financeiro} element={<FinanceiroPage />} />
+            <Route path={ROTAS.privacidade} element={<PrivacidadePage />} />
+            <Route path="*" element={<Navigate to={ROTAS.inicio} replace />} />
+          </Routes>
+        </Suspense>
       </AppShell>
     </BrowserRouter>
   );
@@ -34,7 +53,9 @@ const AreaLogada = () => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    {supabaseConfigurado ? <AreaLogada /> : <ConfiguracaoPendentePage />}
+    <AvisosProvider>
+      {supabaseConfigurado ? <AreaLogada /> : <ConfiguracaoPendentePage />}
+    </AvisosProvider>
   </QueryClientProvider>
 );
 

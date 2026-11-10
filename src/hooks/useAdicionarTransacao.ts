@@ -1,14 +1,7 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { adicionarTransacao } from '@/services';
 import { queryKeys } from '@/lib/queryKeys';
+import { adicionarTransacao } from '@/services';
+import { useMutacao } from './useMutacao';
 
 export function useAdicionarTransacao() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: adicionarTransacao,
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.transacoes.all });
-    },
-  });
+  return useMutacao(adicionarTransacao, { invalida: [queryKeys.transacoes.all], aviso: 'Lançamento adicionado.' });
 }

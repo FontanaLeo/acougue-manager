@@ -1,6 +1,5 @@
-import type { FormEvent } from 'react';
-import { Button, Input, Select } from '@/components/atoms';
-import { CampoFormulario, Modal } from '@/components/molecules';
+import { Input, InputMoeda, Select } from '@/components/atoms';
+import { CampoFormulario, ModalFormulario } from '@/components/molecules';
 import { TipoTransacao } from '@/enums';
 import { useAdicionarTransacao } from '@/hooks';
 import type { Categoria } from '@/types';
@@ -11,13 +10,10 @@ interface NovaTransacaoModalProps {
 }
 
 export function NovaTransacaoModal({ categorias, onClose }: NovaTransacaoModalProps) {
-  const { mutate, isPending, error } = useAdicionarTransacao();
+  const mutacao = useAdicionarTransacao();
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const valores = new FormData(event.currentTarget);
-
-    mutate(
+  const enviar = (valores: FormData) =>
+    mutacao.mutate(
       {
         tipo: valores.get('tipo') as TipoTransacao,
         categoria_id: Number(valores.get('categoria_id')),
@@ -26,12 +22,10 @@ export function NovaTransacaoModal({ categorias, onClose }: NovaTransacaoModalPr
       },
       { onSuccess: onClose },
     );
-  };
 
   return (
-    <Modal titulo="Novo lançamento" onClose={onClose}>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {error && <p className="text-sm text-red-700" role="alert">{error.message}</p>}
+    <ModalFormulario titulo="Novo lançamento" rotuloEnviar="Adicionar" mutacao={mutacao} onEnviar={enviar} onClose={onClose}>
+      <div className="grid gap-4 sm:grid-cols-2">
         <CampoFormulario rotulo="Tipo">
           <Select name="tipo" required autoFocus>
             <option value={TipoTransacao.DESPESA}>Gasto / despesa</option>
@@ -43,17 +37,13 @@ export function NovaTransacaoModal({ categorias, onClose }: NovaTransacaoModalPr
             {categorias.map((categoria) => <option key={categoria.id} value={categoria.id}>{categoria.nome}</option>)}
           </Select>
         </CampoFormulario>
-        <CampoFormulario rotulo="Descrição">
-          <Input name="descricao" type="text" maxLength={120} required placeholder="Ex.: Venda no balcão" />
-        </CampoFormulario>
-        <CampoFormulario rotulo="Valor (R$)">
-          <Input name="valor" type="number" min="0.01" step="0.01" required placeholder="0,00" />
-        </CampoFormulario>
-        <div className="flex justify-end gap-2 pt-2">
-          <Button variant="secondary" onClick={onClose}>Cancelar</Button>
-          <Button type="submit" disabled={isPending}>Adicionar</Button>
-        </div>
-      </form>
-    </Modal>
+      </div>
+      <CampoFormulario rotulo="Descrição">
+        <Input name="descricao" type="text" maxLength={120} required autoComplete="off" placeholder="Ex.: Venda no balcão" />
+      </CampoFormulario>
+      <CampoFormulario rotulo="Valor (R$)">
+        <InputMoeda name="valor" required placeholder="0,00" />
+      </CampoFormulario>
+    </ModalFormulario>
   );
 }

@@ -5,5 +5,5 @@ interface MensagemProps {
 }
 
 export function Mensagem({ children }: MensagemProps) {
-  return <p className="col-span-full text-center text-gray-500 py-8">{children}</p>;
+  return <p className="col-span-full py-8 text-center text-stone-500">{children}</p>;
 }

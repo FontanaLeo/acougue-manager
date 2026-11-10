@@ -1,11 +1,16 @@
+import { CLASSES_SUPERFICIE, Logo } from '@/components/atoms';
+
 export default function ConfiguracaoPendentePage() {
   return (
-    <main className="min-h-screen flex items-center justify-center p-4">
-      <div className="max-w-md rounded-xl bg-white p-6 shadow">
-        <h1 className="text-lg font-bold text-gray-800 mb-2">Supabase não configurado</h1>
-        <p className="text-gray-600">
-          Preencha <code>VITE_SUPABASE_URL</code> e <code>VITE_SUPABASE_PUBLISHABLE_KEY</code> no arquivo <code>.env</code> e
-          reinicie o servidor. O passo a passo está em <code>COMO-INICIAR.md</code>.
+    <main className="flex min-h-screen items-center justify-center p-4">
+      <div className={`max-w-md space-y-4 p-6 ${CLASSES_SUPERFICIE}`}>
+        <Logo />
+        <h1 className="text-lg font-bold text-stone-900">Supabase não configurado</h1>
+        <p className="text-stone-600">
+          Preencha <code className="rounded bg-stone-100 px-1">VITE_SUPABASE_URL</code> e{' '}
+          <code className="rounded bg-stone-100 px-1">VITE_SUPABASE_PUBLISHABLE_KEY</code> no arquivo{' '}
+          <code className="rounded bg-stone-100 px-1">.env</code> e reinicie o servidor. O passo a passo está em{' '}
+          <code className="rounded bg-stone-100 px-1">COMO-INICIAR.md</code>.
         </p>
       </div>
     </main>

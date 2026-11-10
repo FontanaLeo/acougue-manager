@@ -3,3 +3,5 @@ export interface Categoria {
   nome: string;
   cor: string;
 }
+
+export type NovaCategoria = Omit<Categoria, 'id'>;

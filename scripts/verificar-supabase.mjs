@@ -1,10 +1,84 @@
 // Confere se o Supabase está pronto para o app. Só faz consultas: não altera nada
 // no projeto e nunca mostra a chave na tela.
+import dns from 'node:dns/promises';
 import { existsSync, readFileSync } from 'node:fs';
 
-const TABELAS = ['categorias', 'produtos', 'transacoes'];
-const FUNCOES = ['movimentar_estoque', 'adicionar_transacao'];
-const SQL_ESTRUTURA = 'Execute supabase/migrations/20261109120000_estrutura_inicial.sql no SQL Editor.';
+// Os argumentos são inválidos de propósito: nenhuma destas chamadas consegue gravar.
+const ETAPAS = [
+  {
+    arquivo: 'supabase/migrations/20261109120000_estrutura_inicial.sql',
+    tabelas: ['categorias', 'produtos', 'transacoes'],
+    funcoes: {
+      adicionar_transacao: { p_categoria_id: 0, p_tipo: 'receita', p_descricao: '', p_valor: 0 },
+    },
+  },
+  {
+    arquivo: 'supabase/migrations/20261109130000_lotes_margem_desossa_fiado.sql',
+    tabelas: ['lotes', 'saidas', 'desossas', 'desossa_itens', 'clientes', 'fiado_lancamentos'],
+    funcoes: {
+      registrar_entrada: { p_produto_id: 0, p_quantidade: 0, p_custo_kg: 0, p_validade: '2000-01-01' },
+      registrar_saida: { p_produto_id: 0, p_quantidade: 0, p_motivo: '' },
+      atualizar_preco: { p_produto_id: 0, p_preco_kg: 0, p_margem_minima: 0 },
+      registrar_desossa: { p_descricao: '', p_peso_kg: 0, p_valor_total: 0, p_validade: '2000-01-01', p_itens: [] },
+      adicionar_cliente: { p_nome: '', p_telefone: '' },
+      registrar_fiado: { p_cliente_id: 0, p_tipo: '', p_descricao: '', p_valor: 0 },
+    },
+  },
+  {
+    arquivo: 'supabase/migrations/20261109140000_direitos_dos_clientes.sql',
+    tabelas: ['empresa'],
+    funcoes: {
+      atualizar_cliente: { p_cliente_id: 0, p_nome: '', p_telefone: '' },
+      anonimizar_cliente: { p_cliente_id: 0 },
+      salvar_empresa: { p_nome: '', p_contato: '' },
+    },
+  },
+  {
+    arquivo: 'supabase/migrations/20261109150000_cadastros.sql',
+    tabelas: [],
+    funcoes: {
+      adicionar_produto: { p_nome: '', p_preco_kg: 0, p_fornecedor: '', p_estoque_minimo: 0 },
+      adicionar_categoria: { p_nome: '', p_cor: '' },
+    },
+  },
+];
+
+function ipEmNumero(ip) {
+  const [inicio, fim = ''] = ip.split('::');
+  const antes = inicio ? inicio.split(':') : [];
+  const depois = fim ? fim.split(':') : [];
+  const zeros = Array(Math.max(0, 8 - antes.length - depois.length)).fill('0');
+
+  return [...antes, ...zeros, ...depois].reduce((total, parte) => (total << 16n) | BigInt(`0x${parte || '0'}`), 0n);
+}
+
+function faixaContem(faixa, ip) {
+  const [rede, tamanho] = faixa.split('/');
+  const corte = 128n - BigInt(tamanho);
+
+  return (ipEmNumero(ip) >> corte) === (ipEmNumero(rede) >> corte);
+}
+
+// Descobre a região pelo endereço do banco, comparado com a lista oficial de IPs da AWS.
+async function conferirRegiao(url) {
+  const { hostname } = new URL(url);
+  if (!hostname.endsWith('.supabase.co')) return;
+
+  const semResposta = () => console.log('[AVISO] Não consegui descobrir a região. Confira em Project Settings → General.');
+
+  try {
+    const [ip] = await dns.resolve6(`db.${hostname.split('.')[0]}.supabase.co`);
+    const resposta = await fetch('https://ip-ranges.amazonaws.com/ip-ranges.json', { signal: AbortSignal.timeout(20000) });
+    const { ipv6_prefixes: faixas } = await resposta.json();
+    const regiao = faixas.find((faixa) => faixa.region !== 'GLOBAL' && faixaContem(faixa.ipv6_prefix, ip))?.region;
+
+    if (!regiao) semResposta();
+    else if (regiao === 'sa-east-1') ok('Banco hospedado em São Paulo (sa-east-1).');
+    else problema(`O banco está fora do Brasil (${regiao}).`, 'Crie um projeto na região South America (São Paulo), como explica COMO-INICIAR.md.');
+  } catch {
+    semResposta();
+  }
+}
 
 let problemas = 0;
 
@@ -110,13 +184,13 @@ async function chamar(url, chave, caminho, opcoes = {}) {
 }
 
 // Sem login o banco deve recusar com 42501: isso prova que o item existe e está protegido.
-function conferirProtecao(nome, { status, corpo }, codigoAusente) {
+function conferirProtecao(nome, { status, corpo }, codigoAusente, arquivo) {
   if (status === 404 || corpo.code === codigoAusente) {
-    problema(`${nome} ainda não existe.`, SQL_ESTRUTURA);
+    problema(`${nome} ainda não existe.`, `Execute ${arquivo} no SQL Editor.`);
   } else if (corpo.code === '42501') {
     ok(`${nome} existe e recusa quem não fez login.`);
   } else if (status < 300) {
-    problema(`${nome} aceita acesso sem login.`, `Execute de novo as regras de acesso de ${SQL_ESTRUTURA.replace('Execute ', '')}`);
+    problema(`${nome} aceita acesso sem login.`, `Confira as regras de acesso de ${arquivo}.`);
   } else {
     problema(`${nome} respondeu de forma inesperada (HTTP ${status}).`, 'Confira o projeto no painel do Supabase e tente de novo.');
   }
@@ -155,23 +229,21 @@ try {
     problema('Qualquer pessoa ainda pode criar conta.', 'Desative Allow new users to sign up em Authentication → Sign In / Providers.');
   }
 
-  for (const tabela of TABELAS) {
-    conferirProtecao(`Tabela ${tabela}`, await chamar(url, chave, `/rest/v1/${tabela}?select=id&limit=1`), 'PGRST205');
+  for (const { arquivo, tabelas, funcoes } of ETAPAS) {
+    for (const tabela of tabelas) {
+      conferirProtecao(`Tabela ${tabela}`, await chamar(url, chave, `/rest/v1/${tabela}?select=id&limit=1`), 'PGRST205', arquivo);
+    }
+
+    for (const [funcao, argumentos] of Object.entries(funcoes)) {
+      const resposta = await chamar(url, chave, `/rest/v1/rpc/${funcao}`, {
+        method: 'POST',
+        body: JSON.stringify(argumentos),
+      });
+      conferirProtecao(`Função ${funcao}`, resposta, 'PGRST202', arquivo);
+    }
   }
 
-  // Sem login estas chamadas são recusadas antes de executar a função.
-  const argumentos = {
-    movimentar_estoque: { p_produto_id: 0, p_tipo: 'entrada', p_quantidade: 0 },
-    adicionar_transacao: { p_categoria_id: 0, p_tipo: 'receita', p_descricao: '', p_valor: 0 },
-  };
-
-  for (const funcao of FUNCOES) {
-    const resposta = await chamar(url, chave, `/rest/v1/rpc/${funcao}`, {
-      method: 'POST',
-      body: JSON.stringify(argumentos[funcao]),
-    });
-    conferirProtecao(`Função ${funcao}`, resposta, 'PGRST202');
-  }
+  await conferirRegiao(url);
 } catch {
   problema('Não consegui falar com o Supabase nesse endereço.', 'Confira a URL no .env, sua internet e se o projeto não está pausado.');
 }
