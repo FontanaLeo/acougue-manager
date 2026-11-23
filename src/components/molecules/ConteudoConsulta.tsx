@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
-import { CartoesCarregando } from '@/components/molecules/CartoesCarregando/CartoesCarregando';
-import { ErroConsulta } from '@/components/molecules/ErroConsulta/ErroConsulta';
+import { CartoesCarregando } from '@/components/molecules/CartoesCarregando';
+import { ErroConsulta } from '@/components/molecules/ErroConsulta';
 
 interface Consulta<T> {
   data: T | undefined;

@@ -1,6 +1,6 @@
 import type { ComponentProps, FormEvent, ReactNode } from 'react';
 import { Alerta, Button } from '@/components/atoms';
-import { Modal } from '@/components/molecules/Modal/Modal';
+import { Modal } from '@/components/molecules/Modal';
 
 interface ModalFormularioProps {
   titulo: string;

@@ -1,6 +1,6 @@
 import { Badge, Button, Card } from '@/components/atoms';
-import { BadgeValidade } from '@/components/molecules/BadgeValidade/BadgeValidade';
-import { CabecalhoCard } from '@/components/molecules/CabecalhoCard/CabecalhoCard';
+import { BadgeValidade } from '@/components/molecules/BadgeValidade';
+import { CabecalhoCard } from '@/components/molecules/CabecalhoCard';
 import { formatarData, formatarKg, formatarMoeda } from '@/lib/formatters';
 import { estaVencido } from '@/lib/validade';
 import type { Lote } from '@/types';

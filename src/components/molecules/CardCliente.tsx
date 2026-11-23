@@ -1,6 +1,6 @@
 import { HandCoins, MessageCircle, Plus } from 'lucide-react';
 import { Badge, Button, Card, classesBotao } from '@/components/atoms';
-import { CabecalhoCard } from '@/components/molecules/CabecalhoCard/CabecalhoCard';
+import { CabecalhoCard } from '@/components/molecules/CabecalhoCard';
 import { TipoLancamentoFiado } from '@/enums';
 import { estaDevendo, linkLembreteWhatsApp, saldoCliente } from '@/lib/fiado';
 import { formatarData, formatarMoeda, formatarMoedaComSinal, formatarTelefone } from '@/lib/formatters';

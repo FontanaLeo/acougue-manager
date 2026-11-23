@@ -1,7 +1,7 @@
 import { ArrowDownToLine, ArrowUpFromLine } from 'lucide-react';
 import { Badge, Button, Card } from '@/components/atoms';
-import { BadgeValidade } from '@/components/molecules/BadgeValidade/BadgeValidade';
-import { CabecalhoCard } from '@/components/molecules/CabecalhoCard/CabecalhoCard';
+import { BadgeValidade } from '@/components/molecules/BadgeValidade';
+import { CabecalhoCard } from '@/components/molecules/CabecalhoCard';
 import { TipoMovimentacao } from '@/enums';
 import { estoqueBaixo } from '@/lib/estoque';
 import { formatarKg, formatarMoeda } from '@/lib/formatters';

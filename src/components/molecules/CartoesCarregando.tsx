@@ -1,5 +1,5 @@
 import { CLASSES_SUPERFICIE, Esqueleto } from '@/components/atoms';
-import { CLASSES_GRADE, CLASSES_GRADE_RESUMO } from '@/components/molecules/GradeCartoes/GradeCartoes';
+import { CLASSES_GRADE, CLASSES_GRADE_RESUMO } from '@/components/molecules/GradeCartoes';
 
 interface CartoesCarregandoProps {
   quantidade?: number;

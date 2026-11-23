@@ -1,7 +1,7 @@
 import { Pencil } from 'lucide-react';
 import { Badge, Button, Card } from '@/components/atoms';
-import { CabecalhoCard } from '@/components/molecules/CabecalhoCard/CabecalhoCard';
-import { Dado } from '@/components/molecules/Dado/Dado';
+import { CabecalhoCard } from '@/components/molecules/CabecalhoCard';
+import { Dado } from '@/components/molecules/Dado';
 import { formatarMoeda, formatarPercentual } from '@/lib/formatters';
 import { analisarMargem } from '@/lib/margem';
 import type { ItemEstoque } from '@/types';

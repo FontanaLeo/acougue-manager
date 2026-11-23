@@ -1,5 +1,5 @@
 import { Badge, Card } from '@/components/atoms';
-import { CabecalhoCard } from '@/components/molecules/CabecalhoCard/CabecalhoCard';
+import { CabecalhoCard } from '@/components/molecules/CabecalhoCard';
 import { TipoTransacao } from '@/enums';
 import { formatarData, formatarMoedaComSinal } from '@/lib/formatters';
 import type { Transacao } from '@/types';

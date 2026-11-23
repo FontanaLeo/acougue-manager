@@ -1,5 +1,5 @@
 import { Fragment, type ReactElement, type ReactNode } from 'react';
-import { EstadoVazio } from '@/components/molecules/EstadoVazio/EstadoVazio';
+import { EstadoVazio } from '@/components/molecules/EstadoVazio';
 
 export const CLASSES_GRADE = 'grid gap-4 sm:grid-cols-2 xl:grid-cols-3';
 export const CLASSES_GRADE_RESUMO = 'grid grid-cols-2 gap-3 lg:grid-cols-4';
